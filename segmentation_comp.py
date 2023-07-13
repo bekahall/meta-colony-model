@@ -12,7 +12,7 @@ def main():
 
     num_cores = multiprocessing.cpu_count()
 
-    runs = 4
+    runs = 10
 
     r = 0.24
     mutation_rate = 0
@@ -20,7 +20,7 @@ def main():
     Kvals = [30, 60, 90, 120]
     mvals = [0.3, 0.5, 0.7, 0.9]
 
-    total_days = 0.25
+    total_days = 5
     final_time = total_days * 24
     size = [1000, 1000]
     cell_count = 10
