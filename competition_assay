@@ -1,0 +1,70 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+import multiprocessing
+from joblib import Parallel, delayed
+from pathlib import Path
+from skimage import measure
+from classes import *
+from functions import *
+
+def main():
+
+    num_cores = 10
+
+    runs = 10
+
+    r = 0.24
+    mutation_rate = 0
+    KWT = 30
+    mWT = 0.9
+
+    KMTvals = [90, 120]
+    mMTvals = [0.3, 0.5, 0.7]
+    frequencies = [0.1, 0.5, 0.9]
+
+    total_days = 2
+    final_time = total_days * 24
+    size = [500, 500]
+    cell_count = 10
+    colony_no = 1000
+
+    image_folder = Path("competition_data/images/")
+    data_folder = Path("competition_data/data/")
+    image_folder.mkdir(parents=True, exist_ok=True)
+    data_folder.mkdir(parents=True, exist_ok=True)
+
+    for frequency in frequencies:
+        for KMT in KMTvals:
+            for mMT in mMTvals:
+                traits = CellTraits(r, KWT, mWT, mutation_rate, r, KMT, mMT, mutation_rate)
+                run_list = list(range(1, runs + 1))
+
+                if __name__ == "__main__":
+                    data = Parallel(n_jobs=num_cores)(delayed(run_function)(run, final_time, traits, size, cell_count, frequency, colony_no, image_folder, KMT, mMT, frequency) for run in run_list)
+
+                df = pd.DataFrame.from_dict(data)
+                file_name = 'KMT' + str(KMT) + 'mMT' + str(int(mMT*10) + 'p0' + str(int(frequency*10))) + '.csv'
+                file_location = data_folder / file_name
+                df.to_csv(file_location)
+
+def run_function(run, final_time, traits, size, cell_count, frequency, colony_no, image_folder, KMT, mMT, p0):
+    # runs to be run in parallel
+    lattice = run_simulation(final_time, traits, size, cell_count, frequency, colony_no = colony_no)
+
+    image = lattice.counts
+    image[np.nonzero(image)] = 1
+    perimeter = measure.perimeter(image, neighborhood=8)
+    area = np.count_nonzero(lattice.counts)
+    p2a = (perimeter**2)/(4 * math.pi * area)
+
+    figure_name = 'KMT' + str(KMT) + 'mMT' + str(int(mMT*10)) + 'p0' + str(int(p0*10)) + 'run' + str(run) + '.png'
+    figure_location = image_folder / figure_name
+    fig = plt.figure()
+    lattice.return_colony_image()
+    plt.savefig(figure_location)
+    plt.close(fig)
+
+    return {'area' : area, 'perimeter' : perimeter, 'P2A' : p2a}
+
+main()
