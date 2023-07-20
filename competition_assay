@@ -44,7 +44,7 @@ def main():
                     data = Parallel(n_jobs=num_cores)(delayed(run_function)(run, final_time, traits, size, cell_count, frequency, colony_no, image_folder, KMT, mMT, frequency) for run in run_list)
 
                 df = pd.DataFrame.from_dict(data)
-                file_name = 'KMT' + str(KMT) + 'mMT' + str(int(mMT*10) + 'p0' + str(int(frequency*10))) + '.csv'
+                file_name = 'KMT' + str(KMT) + 'mMT' + str(int(mMT*10)) + 'p0' + str(int(frequency*10)) + '.csv'
                 file_location = data_folder / file_name
                 df.to_csv(file_location)
 
