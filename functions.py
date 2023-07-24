@@ -19,7 +19,10 @@ def run_simulation(final_time, traits, size, cell_count, frequency, colony_no = 
 
     [lattice, tracker] = initialise_subcolonies(frequency, cell_count, size, traits, colony_no=colony_no)
 
+    lattice_dict = {0 : lattice}
+
     t = 0
+    prev_t = 0
 
     if display:
         plt.ion()
@@ -33,6 +36,10 @@ def run_simulation(final_time, traits, size, cell_count, frequency, colony_no = 
         [lattice, deltat] = tracker.growth(lattice)
 
         t = t + deltat
+
+        if t - prev_t > 24:
+            lattice_dict[t] = lattice
+            prev_t = t
 
         if display:
             colony_size = lattice.colony_size()
@@ -49,7 +56,7 @@ def run_simulation(final_time, traits, size, cell_count, frequency, colony_no = 
         figure = lattice.return_colony_image()
         plt.show()
 
-    return lattice
+    return lattice_dict
 
 def initialise_subcolonies(frequency, cell_count, size, traits, colony_no = 1):
     """
