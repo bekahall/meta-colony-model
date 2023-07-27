@@ -43,35 +43,44 @@ def run_function(pars, r, KWT, mWT, mutation_rate, final_time, size, cell_count,
     mMT = pars[2]
     p0 = pars[3]
     traits = CellTraits(r, KWT, mWT, mutation_rate, r, KMT, mMT, mutation_rate)
-    lattice_dict = run_simulation(final_time, traits, size, cell_count, p0, colony_no = colony_no)
+    [states_list, counts_list, cmaps_list, norms_list, time_list] = run_simulation(final_time, traits, size, cell_count, p0, colony_no = colony_no)
 
     perimeter_list = []
     area_list = []
     p2a_list = []
     freq_list = []
+    cell_count_list = []
 
+    for i in range(len(time_list)):
+        counts = np.array(counts_list[i])
+        states = np.array(states_list[i])
+        day = time_list[i]
+        cmap = cmaps_list[i]
+        norm = norms_list[i]
+        masked_array = np.ma.array(states, mask = np.isnan(states))
+        size = np.sum(counts)
+        area = np.count_nonzero(counts)
+        frequency = np.nanmean(states)
 
-    for time, lattice in lattice_dict.items():
-        image = lattice.counts
-        image[np.nonzero(image)] = 1
-        perimeter = measure.perimeter(image, neighborhood=8)
-        area = lattice.colony_size()
+        counts[np.nonzero(counts)] = 1
+        perimeter = measure.perimeter(counts, neighborhood=8)
+
         p2a = (perimeter**2)/(4 * math.pi * area)
-        freq = lattice.colony_frequency()
 
         perimeter_list.append(perimeter)
         area_list.append(area)
         p2a_list.append(p2a)
-        freq_list.append(freq)
+        freq_list.append(frequency)
+        cell_count_list.append(size)
 
-        figure_name = 'KMT' + str(KMT) + 'mMT' + str(int(mMT*10)) + 'p0' + str(int(p0*10)) + 'run' + str(run) + 'day' + str(int(time)) + '.png'
+        figure_name = 'KMT' + str(KMT) + 'mMT' + str(int(mMT*10)) + 'p0' + str(int(p0*10)) + 'run' + str(run) + 'day' + str(int(day)) + '.png'
         figure_location = image_folder / figure_name
         fig = plt.figure()
-        lattice.return_colony_image()
-        plt.savefig(figure_location)
+        plt.imshow(masked_array, cmap=cmap, norm=norm)
+        plt.savefig(figure_location, dpi=600)
         plt.close(fig)
 
-    data = {'area' : area_list, 'perimeter' : perimeter_list, 'P2A' : p2a_list, 'frequency' : freq_list}
+    data = {'area' : area_list, 'perimeter' : perimeter_list, 'P2A' : p2a_list, 'frequency' : freq_list, 'counts' : cell_count_list}
     df = pd.DataFrame.from_dict(data)
     file_name = 'KMT' + str(KMT) + 'mMT' + str(int(mMT*10)) + 'p0' + str(int(p0*10)) + 'run' + str(run) + '.csv'
     file_location = data_folder / file_name

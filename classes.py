@@ -32,12 +32,25 @@ class ColonyLattice:
         y = coords[1]
         self.counts[x,y] = new_count
 
+    def return_counts_lattice(self):
+        return self.counts
+    
+    def return_states_lattice(self):
+        return self.states
+
     def return_colony_image(self):
         masked_array = np.ma.array(self.states, mask = np.isnan(self.states))
         cmap = self.cmap
         cmap.set_bad('black', 1.)
         norm = mpl.colors.Normalize(vmin=0, vmax=1)
         return plt.imshow(masked_array, cmap=cmap, norm=norm)
+    
+    def return_cmap(self):
+        masked_array = np.ma.array(self.states, mask = np.isnan(self.states))
+        cmap = self.cmap
+        cmap.set_bad('black', 1.)
+        norm = mpl.colors.Normalize(vmin=0, vmax=1)
+        return cmap, norm
     
     def return_updated_masked_array(self):
         return np.ma.array(self.states, mask = np.isnan(self.states))

@@ -19,7 +19,16 @@ def run_simulation(final_time, traits, size, cell_count, frequency, colony_no = 
 
     [lattice, tracker] = initialise_subcolonies(frequency, cell_count, size, traits, colony_no=colony_no)
 
-    lattice_dict = {0 : lattice}
+    a = lattice.return_states_lattice()
+    b = tuple(map(tuple, a))
+    states_list = [b]
+    a = lattice.return_counts_lattice()
+    b = tuple(map(tuple, a))
+    counts_list = [b]
+    [a, b] = lattice.return_cmap()
+    cmaps_list = [a]
+    norms_list = [b]
+    time_list = [0]
 
     t = 0
     prev_t = 0
@@ -38,7 +47,16 @@ def run_simulation(final_time, traits, size, cell_count, frequency, colony_no = 
         t = t + deltat
 
         if t - prev_t > 24:
-            lattice_dict[t] = lattice
+            a = lattice.return_states_lattice()
+            b = tuple(map(tuple, a))
+            states_list.append(b)
+            a = lattice.return_counts_lattice()
+            b = tuple(map(tuple, a))
+            counts_list.append(b)
+            [a, b] = lattice.return_cmap()
+            cmaps_list.append(a)
+            norms_list.append(b)
+            time_list.append(t)
             prev_t = t
 
         if display:
@@ -49,6 +67,16 @@ def run_simulation(final_time, traits, size, cell_count, frequency, colony_no = 
                 plt.pause(0.005)
                 print('t = {} - size = {}'.format(t, colony_size))
                 prev_size = colony_size
+    a = lattice.return_states_lattice()
+    b = tuple(map(tuple, a))
+    states_list.append(b)
+    a = lattice.return_counts_lattice()
+    b = tuple(map(tuple, a))
+    counts_list.append(b)
+    [a, b] = lattice.return_cmap()
+    cmaps_list.append(a)
+    norms_list.append(b)
+    time_list.append((t+1))
     
     if display:
         plt.ioff()
@@ -56,7 +84,7 @@ def run_simulation(final_time, traits, size, cell_count, frequency, colony_no = 
         figure = lattice.return_colony_image()
         plt.show()
 
-    return lattice_dict
+    return states_list, counts_list, cmaps_list, norms_list, time_list
 
 def initialise_subcolonies(frequency, cell_count, size, traits, colony_no = 1):
     """
