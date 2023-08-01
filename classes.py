@@ -195,28 +195,10 @@ class SubColonyCell:
 class ColonyTracker:
     
     def __init__(self, init_colonies):
-        self.epsilon = 16
         self.subcolonies = SubColonyDict(init_colonies)   # dictionary of all existing subcolonies keyed by coordinates
-        self.birth_rates = SubColonyBirthsDict(init_colonies, 0)
-        # self.high_birth_rates = SubColonyBirthsDict(init_colonies, self.epsilon)   # dictionary of all high subcolony birth rates keyed by coordinates
-        # self.low_birth_rates = SubColonyBirthsDict(init_colonies, self.epsilon, above=False)   # dictionary of all low subcolony birth rates keyed by coordinates
+        self.birth_rates = SubColonyBirthsDict(init_colonies)
 
     def growth(self, states):
-        # high_rates = list(self.high_birth_rates.values())
-        # low_rates = list(self.low_birth_rates.values())
-        # total_high_rate = sum(high_rates)
-        # total_low_rate = sum(low_rates)
-        # total_rate = total_high_rate + total_low_rate
-        # rand1 = np.random.uniform()
-        # if rand1 < (total_high_rate/total_rate):
-        #     coords = list(self.high_birth_rates.keys())
-        #     p = np.array(high_rates)/total_high_rate
-        # else:
-        #     coords = list(self.low_birth_rates.keys())
-        #     p = np.array(low_rates)/total_low_rate
-        # chosen_coords = np.random.choice(coords, p = p)
-        # chosen_colony = self.subcolonies[chosen_coords]
-
         coords = list(self.birth_rates.keys())
         temp = list(self.birth_rates.values())
         total_rate = sum(temp)
@@ -238,19 +220,6 @@ class ColonyTracker:
             elif destination in self.birth_rates:
                 del self.birth_rates[destination]
 
-            # if total_birth_rate > self.epsilon:
-            #     self.high_birth_rates[destination] = total_birth_rate
-            #     if destination in self.low_birth_rates:
-            #         del self.low_birth_rates[destination]
-            # elif total_birth_rate > 0:
-            #     self.low_birth_rates[destination] = total_birth_rate
-            #     if destination in self.high_birth_rates:
-            #         del self.high_birth_rates[destination]
-            # elif destination in self.low_birth_rates:
-            #     del self.low_birth_rates[destination]
-            # elif destination in self.high_birth_rates:
-            #     del self.high_birth_rates[destination]
-
             self.subcolonies[destination] = subcolony
         else:
             if cell_type == 'WT':
@@ -262,11 +231,6 @@ class ColonyTracker:
             total_birth_rate = subcolony.return_total_birth()
             self.birth_rates[destination] = total_birth_rate
             self.subcolonies[destination] = subcolony
-
-            # if total_birth_rate > self.epsilon:
-            #     self.high_birth_rates[destination] = total_birth_rate
-            # elif total_birth_rate > 0:
-            #     self.low_birth_rates[destination] = total_birth_rate
 
         # update states lattice
         states.update_state(subcolony.coords, subcolony.MT_frequency())
@@ -284,19 +248,6 @@ class ColonyTracker:
                     self.birth_rates[coord] = total_birth_rate
                 elif coord in self.birth_rates:
                     del self.birth_rates[coord]
-
-                # if total_birth_rate > self.epsilon:
-                #     self.high_birth_rates[coord] = total_birth_rate
-                #     if coord in self.low_birth_rates:
-                #         del self.low_birth_rates[coord]
-                # elif total_birth_rate > 0:
-                #     self.low_birth_rates[coord] = total_birth_rate
-                #     if coord in self.high_birth_rates:
-                #         del self.high_birth_rates[coord]
-                # elif coord in self.low_birth_rates:
-                #     del self.low_birth_rates[coord]
-                # elif coord in self.high_birth_rates:
-                #     del self.high_birth_rates[coord]
 
                 self.subcolonies[coord] = colony
 
@@ -326,253 +277,9 @@ class SubColonyDict(dict):
         super().__init__(mapping)
 
 class SubColonyBirthsDict(dict):
-    def __init__(self, init_colonies, epsilon, above = True):
+    def __init__(self, init_colonies):
         mapping = {}
         for i in range(len(init_colonies)):
             rate = init_colonies[i].return_total_birth()
-            if above:
-                if rate > epsilon:
-                    mapping[str(init_colonies[i].coords)] = rate
-            else:
-                if rate <= epsilon:
-                    mapping[str(init_colonies[i].coords)] = rate
+            mapping[str(init_colonies[i].coords)] = rate
         super().__init__(mapping)
-
-#####################
-
-
-# class SubColonyCell:
-#     # Attributes
-
-#     def __init__(self, coords, cell_traits, cell_count, frequency):
-#         self.coords = coords
-
-#         self.cell_traits = cell_traits
-#         self.mutationWT = cell_traits['mutationWT']
-#         self.rWT = cell_traits['rWT']
-#         self.KWT = cell_traits['KWT']
-#         self.mWT = cell_traits['mWT']
-#         self.mutationMT = cell_traits['mutationMT']
-#         self.rMT = cell_traits['rMT']
-#         self.KMT = cell_traits['KMT']
-#         self.mMT = cell_traits['mMT']
-#         self.max = max(self.KWT, self.KMT)
-
-#         self.MT_count = int(frequency * cell_count)
-#         self.WT_count = cell_count - self.MT_count
-
-#         self.growing = True
-#         self.migrating = True
-#         self.neighbours = []
-
-#     def update_neighbours(self, states):
-#         # identifies coordinates of neighbouring sites which do not contain a full subcolony
-#         size = states.size
-#         neighbours = []
-#         x = self.coords[0]
-#         y = self.coords[1]
-#         for i in [0,1,-1]:
-#             for j in [-1,0,1]:
-#                 if (i != 0) | (j != 0):
-#                     ncoords = [x + i, y + j]
-#                     if (x + i >= 0) & (x + i < size[0]) & (y + j >= 0) & (y + j < size[1]):    # check if coords are within the lattice
-#                         if states.return_count(ncoords) < self.max:
-#                             neighbours.append(ncoords)
-#         self.neighbours = neighbours
-    
-#     def update_growing(self):
-#         if self.wtbirth() + self.mtbirth() > 0:
-#             self.growing = True
-#         else:
-#             self.growing = False
-
-#     def update_migrating(self):
-#         if len(self.neighbours) == 0:
-#             self.migrating = False
-
-#     def cell_total(self):
-#         return self.WT_count + self.MT_count
-    
-#     def MT_frequency(self):
-#         return self.MT_count/(self.WT_count + self.MT_count)
-    
-#     def update_counts(self, cell_type):
-#         if cell_type == 'WT':
-#             self.WT_count = self.WT_count + 1
-#         elif cell_type == 'MT':
-#             self.MT_count = self.MT_count + 1
-
-#     def wtbirth(self):
-#         Nt = self.cell_total()
-#         if Nt > self.KWT:
-#             return 0
-#         else:
-#             return (self.rWT * self.WT_count) / (self.max*2)
-        
-#         # return max(0, self.rWT * (1 - (Nt/self.KWT)) * self.WT_count)/Nt
-    
-#     def mtbirth(self):
-#         Nt = self.cell_total()
-#         if Nt > self.KMT:
-#             return 0
-#         else:
-#             return (self.rMT * self.MT_count) / (self.max*2)
-#         # return max(0, self.rMT * (1 - (Nt/self.KMT)) * self.MT_count)/Nt
-
-#     def grow(self):
-#         Nt = self.cell_total()
-#         wtbirth = self.wtbirth()
-#         mtbirth = self.mtbirth()
-        
-#         rand1 = np.random.uniform()
-#         if rand1 < wtbirth:
-#             rand2 = np.random.uniform()
-#             if rand2 < self.mutationWT:
-#                 print('a mutation!')
-#                 self.MT_count = self.MT_count + 1
-#             else:
-#                 self.WT_count = self.WT_count + 1
-#         elif rand1 < wtbirth + mtbirth:
-#             rand2 = np.random.uniform()
-#             if rand2 < self.mutationMT:
-#                 print(' a back mutation!')
-#                 self.WT_count = self.WT_count + 1
-#             else:
-#                 self.MT_count = self.MT_count + 1
-        
-#         return self.max
-
-#     def migrate(self):
-#         Nt = self.cell_total()
-#         neighbour_count = len(self.neighbours)
-#         random.shuffle(self.neighbours)
-#         wtmigration = (self.rWT * self.WT_count * self.mWT * (neighbour_count/8))/(self.max*2)
-#         mtmigration = (self.rMT * self.MT_count * self.mMT * (neighbour_count/8))/(self.max*2)
-
-#         rand1 = np.random.uniform()
-#         if rand1 < wtmigration:
-#             rand2 = np.random.uniform()
-#             if rand2 < self.mutationWT:
-#                 cell_type = 'MT'
-#                 print('a migration mutation!')
-#             else:
-#                 cell_type = 'WT'
-#             destination = random.choice(self.neighbours)
-#             migration = True
-#         elif rand1 < wtmigration + mtmigration:
-#             rand2 = np.random.uniform()
-#             if rand2 < self.mutationMT:
-#                 cell_type = 'WT'
-#                 print('a migration back mutation!')
-#             else:
-#                 cell_type = 'MT'
-#             destination = random.choice(self.neighbours)
-#             migration = True
-#         else:
-#             cell_type = None
-#             destination = None
-#             migration = False
-
-#         return migration, destination, cell_type, self.max
-
-#     def __str__(self):
-#         return 'this is a subcolony at ' + str(self.coords) + ' with allele frequency ' + str(self.MT_frequency()) + ' and cell count ' + str(self.cell_total())
-        
-
-# class ColonyTracker:
-
-#     def __init__(self, init_colonies):
-#         self.subcolonies = SubColonyDict(init_colonies)   # list of coordinates for all existing subcolonies
-#         self.growing = list(self.subcolonies.keys())   # list of coordinates for growing subcolonies
-#         self.migrating = list(self.subcolonies.keys())   # list of coordinates for migrating subcolonies
-
-#     def growth(self, states):
-                                    
-#         to_delete = []   # will collect keys of the subcolonies no longer growing
-#         delta_t = 0   # total time spent in growth stage
-#         update_no = 0
-
-#         for k in self.growing:
-#             # fetch subcolony
-#             subcolony = self.subcolonies[k]
-#             # update subcolony
-#             Nt = subcolony.grow()
-#             subcolony.update_growing()
-#             if not subcolony.growing:   # subcolony is no longer growing and can be removed from list of growing subcolonies
-#                 to_delete.append(k)
-#             # update state lattice
-#             states.update_state(subcolony.coords, subcolony.MT_frequency())
-#             states.update_count(subcolony.coords, subcolony.cell_total())
-#             # update subcolony in list of subcolonies
-#             self.subcolonies[k] = subcolony
-#             # increase delta_t and update count
-#             delta_t = delta_t + (1/Nt)
-#             update_no = update_no + 1
-    
-
-#         # remove coordinates of subcolonies which are no longer growing
-#         if len(to_delete) > 0:
-#             for k in to_delete:
-#                 self.growing.remove(k)
-
-#         # average time step
-#         if update_no > 0:
-#             delta_t = delta_t/update_no
-#         else:
-#             print('dt: ' + str(delta_t))
-
-#         # return updated states lattice
-#         return states, delta_t
-    
-#     def migration(self, states):
-#         to_delete = []   # will collect keys of the subcolonies no longer migrating
-#         delta_t = 0   # total time spend in migration stage
-#         update_no = 0
-
-#         random.shuffle(self.migrating)
-#         for k in self.migrating:
-#             # fetch subcolony
-#             subcolony = self.subcolonies[k]
-#             # update subcolony migration status
-#             subcolony.update_neighbours(states)
-#             subcolony.update_migrating()
-#             if subcolony.migrating:
-#                 # determine if and where migration occurs
-#                 [migration, destination, cell_type, Nt] = subcolony.migrate()
-#                 # if migration occurs, update subcolonies
-#                 if migration:
-#                     dest_key = str(destination)
-#                     # check if destination subcolony already exists, if not, create new subcolony
-#                     if dest_key in self.subcolonies:
-#                         colony = self.subcolonies[dest_key]
-#                         colony.update_counts(cell_type)
-#                         self.subcolonies[dest_key] = colony
-#                         self.growing.append(dest_key)
-#                     else:
-#                         if cell_type == 'WT':
-#                             frequency = 0
-#                         elif cell_type == 'MT':
-#                             frequency = 1
-#                         new_colony = SubColonyCell(destination, subcolony.cell_traits, 1, frequency)
-#                         self.subcolonies.update({dest_key : new_colony})
-#                         self.growing.append(dest_key)
-#                         self.migrating.append(dest_key)
-#                     # update state lattice
-#                     states.update_state(self.subcolonies[dest_key].coords, self.subcolonies[dest_key].MT_frequency())
-#                     states.update_count(self.subcolonies[dest_key].coords, self.subcolonies[dest_key].cell_total())
-#                 # update delta_t and migration count
-#                 delta_t = delta_t + (1/Nt)
-#                 update_no = update_no + 1
-#             else:
-#                 to_delete.append(k)
-            
-#         # remove coordinates of subcolonies which are no longer migrating
-#         if len(to_delete) > 0:
-#             for k in to_delete:
-#                 self.migrating.remove(k)
-
-#         # average time step
-#         delta_t = delta_t/update_no
-
-#         # return updated states lattice
-#         return states, delta_t
