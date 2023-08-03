@@ -28,8 +28,8 @@ def main():
     colony_no = 1000
 
     # Save info
-    image_folder = Path("data/KWT{}_KMT{}_mWT{}_mMT{}_p0{}/run{}/images".format(KWT,KMT,int(mWT*10),int(mMT*10),int(p0*10),run_no))
-    data_folder = Path("data/KWT{}_KMT{}_mWT{}_mMT{}_p0{}/run{}/data/".format(KWT,KMT,int(mWT*10),int(mMT*10),int(p0*10),run_no))
+    image_folder = Path("data/KWT{}_KMT{}_mWT{}_mMT{}_p0{}/run{}/images".format(KWT,KMT,int(mWT*100),int(mMT*100),int(p0*10),run_no))
+    data_folder = Path("data/KWT{}_KMT{}_mWT{}_mMT{}_p0{}/run{}/data/".format(KWT,KMT,int(mWT*100),int(mMT*100),int(p0*10),run_no))
     image_folder.mkdir(parents=True, exist_ok=True)
     data_folder.mkdir(parents=True, exist_ok=True)
 
