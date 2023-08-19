@@ -57,10 +57,10 @@ The role of `main.py` is to run the function `run_simulation` and process and ou
 
 - `initialise_demes` is called within `run_simulation` and creates the `ColonyTracker` and `ColonyLattice` objects for the simulation, seeded with a circle of demes. 
 
-### 'helper_ftns.py
+### `helper_ftns.py`
 
 `helper_ftns.py` contains the functions for calculating birth rates.
 
-### 'error_functions.py
+### `error_functions.py`
 
 `error_functions.py` contains functions which will call error messages in certain parameters are not in the appropriate form.
