@@ -1,4 +1,4 @@
-def return_frequency_list(frequency, colony_no):
+def return_frequency_list(frequency, deme_no):
     if isinstance(frequency, list):
         try:
             for f in frequency:
@@ -8,17 +8,17 @@ def return_frequency_list(frequency, colony_no):
             print("freqency argument must be a number or a list of numbers")
         return frequency
     else:
-        if not isinstance(colony_no, int):
-            raise ValueError("colony_no argument must be an integer")
+        if not isinstance(deme_no, int):
+            raise ValueError("deme_no argument must be an integer")
         else:
             try:
                 if (frequency < 0) | (frequency > 1):
                     raise Exception("frequency value must be between 0 and 1")
             except ValueError:
                 print("frequency argument must be a number of a list of numbers")
-            return [frequency] * colony_no
+            return [frequency] * deme_no
         
-def return_cell_count_list(cell_count, colony_no):
+def return_cell_count_list(cell_count, deme_no):
     if isinstance(cell_count, list):
         for c in cell_count:
             if not isinstance(c, int):
@@ -27,17 +27,17 @@ def return_cell_count_list(cell_count, colony_no):
                 raise Exception("cell_count argument must a positive integer or list of positive integers")
         return cell_count
     else:
-        if not isinstance(colony_no, int):
-            raise ValueError("colony_no argument must be an integer")
+        if not isinstance(deme_no, int):
+            raise ValueError("deme_no argument must be an integer")
         else:
             if not isinstance(cell_count, int):
                 raise ValueError("cell_count argument must a positive integer or list of positive integers")
             elif cell_count < 0:
                 raise Exception("cell_count argument must a positive integer or list of positive integers")
             else:
-                return [cell_count] * colony_no
+                return [cell_count] * deme_no
             
-def get_colony_no(frequencies, cell_counts):
+def get_deme_no(frequencies, cell_counts):
     freq_length = len(frequencies)
     count_length = len(cell_counts)
 

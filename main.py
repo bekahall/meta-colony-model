@@ -18,14 +18,15 @@ def main():
     p0 = float(sys.argv[6])
 
     r = 0.24
-    mutation_rate = 4.104e-06
+    # mutation_rate = 4.104e-06
+    mutation_rate = 0
 
     total_days = int(sys.argv[7])
     size = [int(sys.argv[8]), int(sys.argv[8])]
     final_time = total_days * 24
 
     cell_count = 10
-    colony_no = 1000
+    deme_no = 1000
 
     # Save info
     image_folder = Path("data/KWT{}_KMT{}_mWT{}_mMT{}_p0{}/run{}/images".format(KWT,KMT,int(mWT*100),int(mMT*100),int(p0*10),run_no))
@@ -35,7 +36,7 @@ def main():
 
     # Run simulation
     traits = CellTraits(r, KWT, mWT, mutation_rate, r, KMT, mMT, mutation_rate)
-    [states_list, counts_list, cmaps_list, norms_list, time_list] = run_simulation(final_time, traits, size, cell_count, p0, colony_no = colony_no)
+    [states_list, counts_list, cmaps_list, norms_list, time_list] = run_simulation(final_time, traits, size, cell_count, p0, deme_no = deme_no)
 
     # Analysis
     perimeter_list = []
@@ -43,6 +44,7 @@ def main():
     p2a_list = []
     freq_list = []
     cell_count_list = []
+    segment_area_list = []
 
     for i in range(len(time_list)):
         counts = np.array(counts_list[i])
@@ -54,6 +56,7 @@ def main():
         size = np.sum(counts)
         area = np.count_nonzero(counts)
         frequency = np.nanmean(states)
+        segment_area = len(states[states>=0.5])
 
         counts[np.nonzero(counts)] = 1
         perimeter = measure.perimeter(counts, neighborhood=8)
@@ -65,6 +68,7 @@ def main():
         p2a_list.append(p2a)
         freq_list.append(frequency)
         cell_count_list.append(size)
+        segment_area_list.append(segment_area)
 
         figure_name = 'hour{}.png'.format(str(int(day)))
         figure_location = image_folder / figure_name
@@ -73,7 +77,7 @@ def main():
         plt.savefig(figure_location, dpi=600)
         plt.close(fig)
 
-    data = {'area' : area_list, 'perimeter' : perimeter_list, 'P2A' : p2a_list, 'frequency' : freq_list, 'counts' : cell_count_list}
+    data = {'area' : area_list, 'perimeter' : perimeter_list, 'P2A' : p2a_list, 'frequency' : freq_list, 'counts' : cell_count_list, 'segment_area' : segment_area_list}
     df = pd.DataFrame.from_dict(data)
     file_name = 'results.csv'
     file_location = data_folder / file_name
