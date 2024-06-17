@@ -1,7 +1,7 @@
 # Metacolony Model
-This repo contains the code used to perform the simulations presented in Bandara et al. (202_) (insert DOI). 
+This repo contains the code used to perform the simulations presented in Hall et al. (2024) (10.1088/1478-3975/ad1ccd). 
 
-The metacolony model implements a modified stochastic stepping-stone model to simulate growth of *Saccharomyces cerevisiae* colonies, using different intrinsic growth rates, carrying capacities, and expansion rates to mimic different phenotypic growth behaviours. A complete description of the model can be found in Bandara et al. (202_). 
+The metacolony model implements a modified stochastic stepping-stone model to simulate growth of *Saccharomyces cerevisiae* colonies, using different intrinsic growth rates, carrying capacities, and expansion rates to mimic different phenotypic growth behaviours. A complete description of the model can be found in Hall et al. (2024). 
 
 ## Requirements
 
